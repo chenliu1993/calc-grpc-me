@@ -1,0 +1,15 @@
+// proto/calc.proto
+
+syntax = "proto3";
+option go_package="github.com/chenliu1993/calc-grpc-me;proto";
+service Calc {
+    rpc Increment(NumRequest) returns (NumResponse) {}
+}
+
+message NumRequest {
+    int64 val = 1;
+}
+
+message NumResponse {
+    int64 val = 1;
+}
