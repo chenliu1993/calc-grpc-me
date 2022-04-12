@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
+	"strconv"
 
 	pb "github.com/chenliu1993/calc-grpc-me/proto"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -35,19 +38,14 @@ func main() {
 		}
 	}()
 
-	conn, err := grpc.Dial(fmt.Sprintf("localhost:%d", port), grpc.WithInsecure())
-	if err != nil {
-		logger.Fatal("http conn established failed ", zap.Error(err))
-	}
-
 	mux := runtime.NewServeMux()
-	if err := pb.RegisterCalcHandler(context.Background(), mux, conn); err != nil {
+	if err := pb.RegisterCalcHandlerFromEndpoint(context.Background(), mux, fmt.Sprintf("localhost:%d", port), []grpc.DialOption{grpc.WithInsecure()}); err != nil {
 		logger.Fatal("http reg extablished failed ", zap.Error(err))
 	}
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf("localhost:%d", rest),
-		Handler: mux,
+		Handler: moveToBody(mux),
 	}
 
 	logger.Fatal("http listen failed", zap.String("msg", httpServer.ListenAndServe().Error()))
@@ -64,4 +62,23 @@ func (s *CalcService) Work(ctx context.Context, req *pb.WorkRequest) (*pb.WorkRe
 	return &pb.WorkResponse{
 		Reply: "This is boring",
 	}, nil
+}
+
+func moveToBody(f http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Has("val") {
+			val, err := strconv.Atoi(r.URL.Query().Get("val"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Println(val)
+			req, err := http.NewRequest(r.Method, r.URL.String(), bytes.NewReader([]byte(fmt.Sprintf("{\"val\":\"%d\"}", val))))
+			if err != nil {
+				log.Fatal(err)
+			}
+			f.ServeHTTP(w, req)
+		} else {
+			f.ServeHTTP(w, r)
+		}
+	})
 }
