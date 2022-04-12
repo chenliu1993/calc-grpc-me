@@ -2,8 +2,22 @@
 
 syntax = "proto3";
 option go_package="github.com/chenliu1993/calc-grpc-me;proto";
+import "google/api/annotations.proto";
+package proto;
+
 service Calc {
-    rpc Increment(NumRequest) returns (NumResponse) {}
+    rpc Increment(NumRequest) returns (NumResponse) {
+        option (google.api.http) = {
+            post: "/v1/increment"
+            body: "*"
+          };
+    };
+    rpc Work(WorkRequest) returns (WorkResponse) {
+        option (google.api.http) = {
+            post: "/v1/work"
+            body: "*"
+          };
+    };
 }
 
 message NumRequest {
@@ -13,3 +27,10 @@ message NumRequest {
 message NumResponse {
     int64 val = 1;
 }
+
+message WorkRequest {
+
+}
+ message WorkResponse {
+     string reply = 1;
+ }

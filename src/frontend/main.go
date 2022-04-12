@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 
-	pb "github.com/chenliu1993/calc-grpc-me/proto/gen"
+	pb "github.com/chenliu1993/calc-grpc-me/proto"
 )
 
 func main() {
@@ -47,6 +47,7 @@ func incrementHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	val, err := strconv.Atoi(r.URL.Query().Get("val"))
+	logger.Info("val is", zap.String("url is ", r.URL.String()))
 	if err != nil {
 		logger.Error("got value error", zap.Error(err))
 	}
