@@ -72,8 +72,9 @@ func moveToBody(f http.Handler) http.Handler {
 				log.Fatal(err)
 			}
 			log.Println(val)
-			req, err := http.NewRequest(r.Method, r.URL.String(), bytes.NewReader([]byte(fmt.Sprintf("{\"val\":\"%d\"}", val))))
-			if err != nil {
+			// req, err := http.NewRequest(r.Method, r.URL.String(), bytes.NewReader([]byte(fmt.Sprintf("{\"val\":\"%d\"}", val))))
+			req, err := http.NewRequest(r.Method, r.URL.String(), bytes.NewReader([]byte(fmt.Sprintf("%d", val))))
+                        if err != nil {
 				log.Fatal(err)
 			}
 			f.ServeHTTP(w, req)

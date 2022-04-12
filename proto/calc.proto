@@ -9,7 +9,7 @@ service Calc {
     rpc Increment(NumRequest) returns (NumResponse) {
         option (google.api.http) = {
             post: "/v1/increment"
-            body: "*"
+            body: "val"
           };
     };
     rpc Work(WorkRequest) returns (WorkResponse) {
