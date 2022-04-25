@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sts-test
+spec:
+  selector:
+    matchLabels:
+       app: busybox
+  serviceName: "placeholder"
+  replicas: 1
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-test
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      storageClassName: retain-standard
+      resources:
+        requests:
+          storage: 1Gi
+  template:
+    metadata:
+      labels:
+        app: busybox
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        args:
+        - sh
+        - -c
+        - "sleep 36000"
+        volumeMounts:
+        - mountPath: "/data"
+          name: pvc-test
